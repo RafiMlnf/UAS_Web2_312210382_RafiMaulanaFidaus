@@ -7,6 +7,8 @@ export default {
   data() {
     return {
       icons,
+      isMobile: window.__mq ? window.__mq.is : false,
+      _mqListener: null,
       loading: true,
       parts: [],
       categories: [],
@@ -61,6 +63,13 @@ export default {
   },
   async created() {
     await this.loadData()
+  },
+  mounted() {
+    this._mqListener = () => { this.isMobile = window.__mq ? window.__mq.is : false }
+    window.addEventListener('resize', this._mqListener)
+  },
+  beforeUnmount() {
+    if (this._mqListener) window.removeEventListener('resize', this._mqListener)
   },
   methods: {
     async loadData() {
@@ -221,16 +230,17 @@ export default {
           <p class="text-xs text-gray-400 mt-1">Coba ubah kata kunci pencarian atau filter Anda.</p>
         </div>
 
-        <div v-else class="table-wrapper">
+        <!-- Desktop Table -->
+        <div v-else-if="!isMobile" class="table-wrapper">
           <table class="data-table compact">
             <thead>
               <tr>
                 <th class="w-28">Kode</th>
                 <th>Nama Komponen</th>
-                <th>Kategori & Brand</th>
+                <th>Kategori &amp; Brand</th>
                 <th class="text-right">Harga Beli</th>
                 <th class="text-right">Harga Jual</th>
-                <th class="text-center w-32">Stok & Status</th>
+                <th class="text-center w-32">Stok &amp; Status</th>
                 <th class="w-24 text-center">Aksi</th>
               </tr>
             </thead>
@@ -266,14 +276,18 @@ export default {
                 </td>
                 <td class="text-right font-medium text-xs text-gray-700">{{ formatRupiah(part.harga_beli) }}</td>
                 <td class="text-right font-semibold text-xs text-primary-DEFAULT">{{ formatRupiah(part.harga_jual) }}</td>
-                <td class="text-center">
-                  <div class="flex flex-col items-center gap-1">
-                    <span class="badge font-mono !text-[10px] !px-1.5 !py-0.5 whitespace-nowrap" :class="Number(part.stok) <= Number(part.stok_minimum) ? 'badge-danger' : 'badge-neutral'">
-                      {{ part.stok }} / {{ part.stok_minimum }} {{ part.satuan }}
+                <td>
+                  <div class="flex items-center justify-between gap-3 px-2">
+                    <span class="font-mono text-xs font-semibold whitespace-nowrap" :class="Number(part.stok) <= Number(part.stok_minimum) ? 'text-red-500' : 'text-gray-700'">
+                      {{ part.stok }}<span class="text-gray-400 font-normal"> / {{ part.stok_minimum }}</span>
                     </span>
-                    <span class="badge !text-[9px] !px-1.5 !py-0.2 uppercase font-semibold" :class="part.status === 'aktif' ? 'badge-success' : 'badge-neutral'">
-                      {{ part.status }}
-                    </span>
+                    <span
+                      :title="part.status === 'aktif' ? 'Aktif' : 'Discontinue'"
+                      class="w-2.5 h-2.5 rounded-full flex-shrink-0 ring-2"
+                      :class="part.status === 'aktif'
+                        ? 'bg-emerald-400 ring-emerald-100'
+                        : 'bg-gray-300 ring-gray-100'"
+                    ></span>
                   </div>
                 </td>
                 <td class="text-center">
@@ -285,6 +299,45 @@ export default {
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Mobile Card List -->
+        <div v-else class="mobile-card-list">
+          <div v-for="part in filteredParts" :key="part.id" class="mc-item">
+            <div class="mc-row">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-white border border-gray-100 flex items-center justify-center p-1 overflow-hidden flex-shrink-0">
+                  <img v-if="part.gambar_url" :src="part.gambar_url" :alt="part.nama_part" class="max-w-full max-h-full object-contain" referrerpolicy="no-referrer" @error="part.gambar_url = null" />
+                  <span v-else class="text-gray-300" v-html="icons.box"></span>
+                </div>
+                <div>
+                  <div class="mc-title">{{ part.nama_part }}</div>
+                  <div class="mc-subtitle">{{ part.kode_part }} · {{ part.nama_kategori }}</div>
+                </div>
+              </div>
+              <span
+                class="w-2.5 h-2.5 rounded-full flex-shrink-0 ring-2 mt-1"
+                :class="part.status === 'aktif' ? 'bg-emerald-400 ring-emerald-100' : 'bg-gray-300 ring-gray-100'"
+                :title="part.status"
+              ></span>
+            </div>
+            <div class="mc-row">
+              <div>
+                <div class="mc-label">Harga Jual</div>
+                <div style="font-size:15px;font-weight:700;color:var(--primary)">{{ formatRupiah(part.harga_jual) }}</div>
+              </div>
+              <div style="text-align:right">
+                <div class="mc-label">Stok</div>
+                <div class="font-mono text-sm font-bold" :class="Number(part.stok) <= Number(part.stok_minimum) ? 'text-red-500' : 'text-gray-800'">
+                  {{ part.stok }} <span class="text-gray-400 font-normal text-xs">/ {{ part.stok_minimum }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="mc-actions">
+              <button class="btn-icon" @click="openEditModal(part)" v-html="icons.pencil" title="Ubah"></button>
+              <button class="btn-icon hover:!border-red-200 hover:!text-red-500" @click="deletePart(part.id)" v-html="icons.trash" title="Hapus"></button>
+            </div>
+          </div>
         </div>
       </div>
 

@@ -130,18 +130,28 @@ export default {
           <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white" v-html="icons.logo"></div>
           <span class="text-base font-bold text-gray-900 tracking-tight">E-Inventory PC</span>
         </div>
-        <router-link v-if="isLoggedIn" to="/dashboard" class="btn btn-sm flex items-center gap-1.5 shadow-sm bg-white text-gray-900 border border-gray-900 hover:bg-gray-50 transition-all">
+        <router-link v-if="isLoggedIn" to="/dashboard" class="btn btn-sm flex items-center gap-1.5 shadow-sm bg-white text-gray-900 border border-gray-800/30 hover:bg-blue-50/60 hover:text-blue-600 hover:border-blue-200 transition-all">
           <span>Ke Dashboard</span>
           <span v-html="icons.chevronRight"></span>
         </router-link>
-        <router-link v-else to="/login" class="btn btn-primary btn-sm flex items-center gap-1.5 shadow-sm">
+        <router-link v-else to="/login" class="btn btn-primary btn-sm flex items-center gap-1.5 shadow-sm border border-gray-800/30">
           <span>Masuk Ke Sistem</span>
           <span v-html="icons.chevronRight"></span>
         </router-link>
       </header>
 
+      <!-- Hero Section -->
+      <div class="hero-section text-left max-w-3xl mb-12 animate-swipe-up-fade">
+        <h1 class="text-3xl md:text-5xl font-extrabold text-gray-950 tracking-tight leading-tight mb-5">
+          Portal Manajemen Inventaris & Distribusi Komponen PC
+        </h1>
+        <p class="text-base text-gray-600 leading-relaxed max-w-2xl">
+          Sistem kontrol logistik dan ketersediaan komponen PC secara real-time. Pantau ketersediaan stok processor, VGA, RAM, storage, dan peripheral lainnya secara akurat untuk kelancaran rantai pasok Anda.
+        </p>
+      </div>
+
       <!-- Autoscroll Ticker -->
-      <div v-if="!loading && parts.length > 0" class="relative overflow-hidden w-full mb-8 py-3 glass-card rounded-xl shadow-sm border border-white/40">
+      <div v-if="!loading && parts.length > 0" class="relative overflow-hidden w-full mb-10 py-3 glass-card rounded-xl shadow-sm border border-white/40">
         <div ref="tickerContainer" class="flex gap-4 px-4 overflow-x-auto scroll-smooth no-scrollbar" style="scrollbar-width: none;" @mouseenter="stopTicker" @mouseleave="startTicker">
           <div v-for="p in parts" :key="'ticker-' + p.id" class="flex items-center gap-3 bg-white/60 backdrop-blur-md border border-white/80 rounded-xl p-2.5 min-w-[260px] max-w-[260px] flex-shrink-0 shadow-xs transition-all duration-300 hover:scale-[1.02] hover:bg-white/80">
             <div class="w-12 h-12 rounded-lg bg-white border border-gray-150 flex items-center justify-center p-1 overflow-hidden flex-shrink-0 shadow-2xs">
@@ -160,20 +170,6 @@ export default {
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- Hero Section -->
-      <div class="hero-section text-center max-w-2xl mx-auto mb-12">
-        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-blue-600 bg-blue-50/80 border border-blue-100 mb-4">
-          <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
-          Katalog Publik Aktif
-        </span>
-        <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight leading-tight mb-4">
-          Kelola & Pantau Komponen PC dengan Presisi
-        </h1>
-        <p class="text-sm text-gray-500 leading-relaxed max-w-lg mx-auto">
-          Selamat datang di platform E-Inventory PC. Pantau ketersediaan stok processor, VGA, RAM, dan peripheral lainnya secara realtime.
-        </p>
       </div>
 
       <!-- Grid Ringkasan Data -->
@@ -241,7 +237,7 @@ export default {
         <div v-if="categories.length > 0" class="flex flex-wrap gap-2.5 mb-6 border-b border-gray-150/40 pb-5">
           <button
             class="px-4 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200"
-            :class="!filterCategory ? 'bg-blue-600 text-white border-blue-600 shadow-sm' : 'bg-white/80 text-gray-600 border-gray-200/80 hover:bg-gray-50'"
+            :class="!filterCategory ? 'bg-blue-600 text-white border-gray-800/30 shadow-sm' : 'bg-white/80 text-gray-600 border-gray-800/30 hover:bg-blue-50/60 hover:text-blue-600 hover:border-blue-200'"
             @click="filterCategory = ''"
           >
             Semua Komponen
@@ -250,7 +246,7 @@ export default {
             v-for="cat in categories"
             :key="cat.id"
             class="px-4 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 flex items-center gap-1.5"
-            :class="filterCategory == cat.id ? 'bg-blue-600 text-white border-blue-600 shadow-sm' : 'bg-white/80 text-gray-600 border-gray-200/80 hover:bg-gray-50'"
+            :class="filterCategory == cat.id ? 'bg-blue-600 text-white border-gray-800/30 shadow-sm' : 'bg-white/80 text-gray-600 border-gray-800/30 hover:bg-blue-50/60 hover:text-blue-600 hover:border-blue-200'"
             @click="filterCategory = cat.id"
           >
             <span v-html="icons.getCategoryIcon(cat.nama_kategori)" class="opacity-70"></span>

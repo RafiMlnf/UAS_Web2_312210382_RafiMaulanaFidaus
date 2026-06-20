@@ -7,14 +7,17 @@ export default {
       icons,
       loading: true,
       chartLoading: false,
+      isMobile: window.__mq ? window.__mq.is : false,
       stats: { total_part: 0, part_aktif: 0, stok_menipis: 0, total_nilai_stok: 0 },
       stokMenipis: [],
       transaksiMasuk: [],
       transaksiKeluar: [],
       activeTab: 'masuk',
-      chartPeriod: 'daily',   // 'daily' | 'weekly' | 'monthly'
+      chartPeriod: 'daily',
       chartData: { labels: [], masuk: [], keluar: [], masukTx: [], keluarTx: [] },
       chartInstance: null,
+      _chartTimer: null,
+      _mqListener: null,
       categories: [],
       selectedKategoriId: '',
     }
@@ -88,18 +91,23 @@ export default {
     await this.loadAll()
   },
   mounted() {
+    this._mqListener = () => { this.isMobile = window.__mq ? window.__mq.is : false }
+    window.addEventListener('resize', this._mqListener)
     this.$nextTick(() => {
-      if (!this.loading) this.renderChart()
+      if (!this.loading) this.scheduleRenderChart()
     })
   },
   watch: {
     loading(val) {
-      if (!val) {
-        this.$nextTick(() => this.renderChart())
-      }
+      if (!val) this.$nextTick(() => this.scheduleRenderChart())
     },
   },
   beforeUnmount() {
+    if (this._mqListener) window.removeEventListener('resize', this._mqListener)
+    if (this._chartTimer) {
+      clearTimeout(this._chartTimer)
+      this._chartTimer = null
+    }
     if (this.chartInstance) {
       this.chartInstance.destroy()
       this.chartInstance = null
@@ -143,10 +151,10 @@ export default {
         }
         const res = await axios.get(url)
         this.chartData = res.data.data
-        this.$nextTick(() => this.renderChart())
+        this.chartLoading = false
+        this.$nextTick(() => this.scheduleRenderChart())
       } catch (err) {
         console.error('Chart fetch error:', err)
-      } finally {
         this.chartLoading = false
       }
     },
@@ -162,9 +170,20 @@ export default {
       await this.fetchChartData()
     },
 
+    scheduleRenderChart() {
+      if (this._chartTimer) clearTimeout(this._chartTimer)
+      this._chartTimer = setTimeout(() => {
+        this._chartTimer = null
+        this.renderChart()
+      }, 60)
+    },
+
     renderChart() {
       const canvas = this.$refs.trendChart
+      // Guard: canvas gone (navigation, unmount) or Chart.js not loaded yet
       if (!canvas || typeof Chart === 'undefined') return
+      // Guard: canvas no longer attached to the live DOM
+      if (!document.body.contains(canvas)) return
 
       if (this.chartInstance) {
         this.chartInstance.destroy()
@@ -263,7 +282,7 @@ export default {
           },
           scales: {
             x: {
-              grid: { display: false },
+              grid: { color: 'rgba(0,0,0,0.04)' },
               border: { display: false },
               ticks: {
                 font: { size: 10, family: "'Product Sans', sans-serif" },
@@ -334,8 +353,8 @@ export default {
         </div>
       </div>
 
-      <!-- ── Stat Cards ──────────────────────── -->
-      <div class="grid grid-cols-4 gap-4 mb-6">
+      <!-- ── Stat Cards: Desktop 4-col grid ───────── -->
+      <div v-if="!isMobile" class="grid grid-cols-4 gap-4 mb-6">
         <div
           v-for="(card, i) in statCards"
           :key="i"
@@ -361,88 +380,88 @@ export default {
         </div>
       </div>
 
+      <!-- ── Stat Cards: Mobile compact strip ──────── -->
+      <div v-else class="mobile-stat-strip">
+        <div v-for="(card, i) in statCards" :key="i" class="ms-item">
+          <div class="ms-icon" :style="{ background: card.iconBg, color: card.iconColor }" v-html="icons[card.icon]"></div>
+          <div style="flex:1">
+            <div class="ms-label">{{ card.label }}</div>
+            <div class="ms-value" :style="{ color: card.highlight ? '#EF4444' : '' }">{{ card.value }}</div>
+            <div class="ms-sub">{{ card.sub }}</div>
+          </div>
+          <div v-if="card.highlight" class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+        </div>
+      </div>
+
       <!-- ── Trend Chart Card ────────────────── -->
-      <div class="card p-6 mb-6">
+      <div class="card mb-6" :class="isMobile ? 'p-4' : 'p-6'">
 
         <!-- Header row -->
-        <div class="flex items-center justify-between mb-5">
+        <div class="flex items-center justify-between mb-4" :class="isMobile ? 'flex-col items-start gap-2' : ''">
           <div>
-            <h2 class="text-base font-bold text-gray-900">Tren Transaksi Komponen</h2>
-            <p class="text-xs text-gray-400 mt-0.5">{{ periodSubLabel }} — stok masuk vs keluar</p>
+            <h2 class="text-base font-bold text-gray-900">Tren Transaksi</h2>
+            <p class="text-xs text-gray-400 mt-0.5">{{ periodSubLabel }} — masuk vs keluar</p>
           </div>
 
           <!-- Filters & Period tabs -->
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2" :class="isMobile ? 'w-full' : ''">
             <!-- Category filter dropdown -->
             <select
               :value="selectedKategoriId"
               @change="changeKategoriFilter"
-              class="px-3 py-1.5 text-xs font-semibold rounded-xl bg-gray-50 border border-gray-200 text-gray-700 focus:outline-none focus:ring-1 focus:ring-primary-DEFAULT/50 transition-all cursor-pointer max-w-[200px]"
+              class="px-2 py-1.5 text-xs font-semibold rounded-xl bg-gray-50 border border-gray-800/30 text-gray-700 focus:outline-none transition-all cursor-pointer hover:bg-blue-50/60 hover:text-blue-600"
+              :class="isMobile ? 'flex-1' : 'max-w-[200px]'"
             >
               <option value="">Semua Kategori</option>
-              <option v-for="c in categories" :key="c.id" :value="c.id">
-                {{ c.nama_kategori }}
-              </option>
+              <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.nama_kategori }}</option>
             </select>
 
-            <!-- Period filter tabs with border/stroke -->
-            <div class="flex items-center gap-1 bg-gray-100 rounded-xl p-1 border border-gray-200/50">
+            <!-- Period tabs -->
+            <div class="flex items-center gap-0.5 bg-gray-100 rounded-xl p-1 border border-gray-800/30">
               <button
-                v-for="p in [{k:'daily',l:'Harian'},{k:'weekly',l:'Mingguan'},{k:'monthly',l:'Bulanan'}]"
+                v-for="p in [{k:'daily',l:'H'},{k:'weekly',l:'M'},{k:'monthly',l:'B'}]"
                 :key="p.k"
-                class="px-3 py-1.5 text-xs font-semibold rounded-lg transition-all border relative"
-                :class="chartPeriod === p.k ? 'bg-white border-gray-200/70 text-gray-900 shadow-sm' : 'bg-transparent border-transparent text-gray-400 hover:text-gray-600'"
+                class="px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-all border"
+                :class="chartPeriod === p.k ? 'bg-white border-gray-800/30 text-gray-900 shadow-sm' : 'bg-transparent border-transparent text-gray-400 hover:bg-blue-50/60 hover:text-blue-600'"
                 @click="switchPeriod(p.k)"
                 :disabled="chartLoading"
-              >
-                <span v-if="chartLoading && chartPeriod === p.k" class="opacity-50">{{ p.l }}</span>
-                <span v-else>{{ p.l }}</span>
-              </button>
+              >{{ p.l }}</button>
             </div>
           </div>
         </div>
 
-        <!-- Legend + summary badges -->
-        <div class="flex items-center gap-5 mb-4">
-          <div class="flex items-center gap-2">
-            <span class="w-3 h-3 rounded-full inline-block flex-shrink-0" style="background: linear-gradient(135deg, #10B981, #FDE047);"></span>
-            <span class="text-xs text-gray-500">Unit Masuk</span>
-            <span class="text-xs font-bold text-gray-800 ml-1">{{ totalMasukChart.toLocaleString('id-ID') }} unit</span>
+        <!-- Legend -->
+        <div class="flex items-center gap-4 mb-3">
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full" style="background:#10B981"></span>
+            <span class="text-[11px] text-gray-500">Masuk</span>
+            <span class="text-[11px] font-bold text-gray-800">{{ totalMasukChart }}</span>
           </div>
-          <div class="flex items-center gap-2">
-            <span class="w-3 h-3 rounded-full inline-block flex-shrink-0" style="background: #EF4444;"></span>
-            <span class="text-xs text-gray-500">Unit Keluar</span>
-            <span class="text-xs font-bold text-gray-800 ml-1">{{ totalKeluarChart.toLocaleString('id-ID') }} unit</span>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-red-400"></span>
+            <span class="text-[11px] text-gray-500">Keluar</span>
+            <span class="text-[11px] font-bold text-gray-800">{{ totalKeluarChart }}</span>
           </div>
-          <div class="flex items-center gap-2 ml-auto">
-            <span class="text-xs text-gray-400">Net stok periode ini:</span>
+          <div class="ml-auto">
             <span
-              class="text-xs font-bold px-2 py-0.5 rounded-full"
-              :style="totalMasukChart - totalKeluarChart >= 0
-                ? 'background:#ECFDF5;color:#059669'
-                : 'background:#FEF2F2;color:#DC2626'"
-            >
-              {{ totalMasukChart - totalKeluarChart >= 0 ? '+' : '' }}{{ (totalMasukChart - totalKeluarChart).toLocaleString('id-ID') }} unit
-            </span>
+              class="text-[11px] font-bold px-2 py-0.5 rounded-full"
+              :style="totalMasukChart - totalKeluarChart >= 0 ? 'background:#ECFDF5;color:#059669' : 'background:#FEF2F2;color:#DC2626'"
+            >{{ totalMasukChart - totalKeluarChart >= 0 ? '+' : '' }}{{ totalMasukChart - totalKeluarChart }} unit</span>
           </div>
         </div>
 
-        <!-- Loading overlay -->
-        <div v-if="chartLoading" class="flex items-center justify-center" style="height:220px;">
-          <div class="flex flex-col items-center gap-2 text-gray-400">
-            <div class="spinner" style="border-color:rgba(26,112,245,0.2);border-top-color:#1A70F5;width:24px;height:24px;border-width:2px;"></div>
-            <span class="text-xs">Memuat data chart...</span>
-          </div>
+        <!-- Loading -->
+        <div v-if="chartLoading" class="flex items-center justify-center" :style="isMobile ? 'height:150px' : 'height:220px'">
+          <div class="spinner" style="border-color:rgba(26,112,245,0.2);border-top-color:#1A70F5;width:24px;height:24px;border-width:2px;"></div>
         </div>
 
         <!-- Canvas -->
-        <div v-show="!chartLoading" style="height: 220px; position: relative;">
+        <div v-show="!chartLoading" :style="isMobile ? 'height:150px;position:relative' : 'height:220px;position:relative'">
           <canvas ref="trendChart"></canvas>
         </div>
 
-        <!-- No data fallback -->
-        <div v-if="!chartLoading && chartData.labels.length === 0" class="flex items-center justify-center text-gray-400 text-sm" style="height:220px;">
-          Belum ada data transaksi untuk periode ini.
+        <div v-if="!chartLoading && chartData.labels.length === 0" class="flex items-center justify-center text-gray-400 text-xs" :style="isMobile ? 'height:150px' : 'height:220px'">
+          Belum ada data transaksi.
         </div>
       </div>
 
@@ -507,7 +526,8 @@ export default {
           </div>
         </div>
 
-        <div class="table-wrapper">
+        <!-- Table: Desktop -->
+        <div v-if="!isMobile" class="table-wrapper">
           <table class="data-table compact">
             <thead>
               <tr>
@@ -547,6 +567,31 @@ export default {
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Card List: Mobile -->
+        <div v-else class="mobile-card-list">
+          <div v-if="recentList.length === 0" class="text-center py-6 text-gray-400 text-sm">Belum ada transaksi.</div>
+          <div v-for="t in recentList" :key="t.id" class="mc-item">
+            <div class="mc-row">
+              <div>
+                <div class="mc-title">{{ t.nama_part }}</div>
+                <div class="mc-subtitle">{{ t.kode_part }}</div>
+              </div>
+              <span
+                class="mc-badge"
+                :style="activeTab === 'masuk' ? 'background:#ECFDF5;color:#059669' : 'background:#FEF2F2;color:#DC2626'"
+              >{{ activeTab === 'masuk' ? '+' : '-' }}{{ t.jumlah }} pcs</span>
+            </div>
+            <div class="mc-row" style="font-size:11px;color:var(--text-2)">
+              <span>{{ activeTab === 'masuk' ? t.no_invoice : t.no_transaksi }}</span>
+              <span>{{ formatDate(activeTab === 'masuk' ? t.tgl_masuk : t.tgl_keluar) }}</span>
+            </div>
+            <div class="mc-row">
+              <span style="font-size:11px;color:var(--text-2)">{{ activeTab === 'masuk' ? t.nama_supplier : t.nama_pembeli }}</span>
+              <span style="font-size:13px;font-weight:700;color:var(--text-1)">{{ formatRupiah(t.total_harga) }}</span>
+            </div>
+          </div>
         </div>
 
         <div class="mt-4 pt-4 border-t border-gray-100 flex justify-end">

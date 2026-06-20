@@ -1,5 +1,17 @@
 // axios-config.js — Axios interceptors: inject Bearer token + handle 401
-const BASE_URL = 'http://localhost:85/Web2-Inventory/backend-api/public'
+let BASE_URL = 'http://localhost/UASWeb2/backend-api/public'
+
+if (window.location.protocol.startsWith('http')) {
+  const origin = window.location.origin
+  const pathname = window.location.pathname
+  let projectPath = ''
+  if (pathname.includes('/frontend-spa')) {
+    projectPath = pathname.substring(0, pathname.indexOf('/frontend-spa'))
+  } else {
+    projectPath = pathname.includes('/Web2-Inventory') ? '/Web2-Inventory' : '/UASWeb2'
+  }
+  BASE_URL = `${origin}${projectPath}/backend-api/public`
+}
 
 axios.defaults.baseURL = BASE_URL
 

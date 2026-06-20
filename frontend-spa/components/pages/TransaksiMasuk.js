@@ -7,6 +7,8 @@ export default {
   data() {
     return {
       icons,
+      isMobile: window.__mq ? window.__mq.is : false,
+      _mqListener: null,
       loading: true,
       transactions: [],
       parts: [],
@@ -50,6 +52,13 @@ export default {
       this.loadParts(),
       this.loadSuppliers()
     ])
+  },
+  mounted() {
+    this._mqListener = () => { this.isMobile = window.__mq ? window.__mq.is : false }
+    window.addEventListener('resize', this._mqListener)
+  },
+  beforeUnmount() {
+    if (this._mqListener) window.removeEventListener('resize', this._mqListener)
   },
   methods: {
     async loadTransactions() {
@@ -214,54 +223,65 @@ export default {
           <p class="text-xs text-gray-400 mt-1">Belum ada barang masuk yang dicatat.</p>
         </div>
 
-        <div v-else class="table-wrapper">
+        <!-- Desktop Table -->
+        <div v-else-if="!isMobile" class="table-wrapper">
           <table class="data-table compact">
-            <thead>
-              <tr>
-                <th>No. Invoice</th>
-                <th>Tanggal</th>
-                <th>Supplier</th>
-                <th>Part / Komponen</th>
-                <th class="text-right">Jumlah</th>
-                <th class="text-right">Harga Satuan</th>
-                <th class="text-right">Total</th>
-                <th class="w-16 text-center">Aksi</th>
-              </tr>
-            </thead>
+            <thead><tr>
+              <th>No. Invoice</th>
+              <th>Tanggal</th>
+              <th>Supplier</th>
+              <th>Part / Komponen</th>
+              <th class="text-right">Jumlah</th>
+              <th class="text-right">Harga Satuan</th>
+              <th class="text-right">Total</th>
+              <th class="w-16 text-center">Aksi</th>
+            </tr></thead>
             <tbody>
               <tr v-for="tx in filteredTransactions" :key="tx.id" class="hover:bg-gray-50/50">
                 <td>
-                  <span class="text-[11px] font-mono font-medium text-blue-600 bg-blue-50/70 px-1.5 py-0.5 rounded border border-blue-100/80 whitespace-nowrap">
-                    {{ tx.no_invoice }}
-                  </span>
+                  <span class="text-[11px] font-mono font-medium text-blue-600 bg-blue-50/70 px-1.5 py-0.5 rounded border border-blue-100/80 whitespace-nowrap">{{ tx.no_invoice }}</span>
                 </td>
-                <td class="text-sm text-gray-600">
-                  {{ tx.tgl_masuk || tx.tanggal }}
-                </td>
-                <td class="text-sm font-medium text-gray-800">
-                  {{ tx.nama_supplier }}
-                </td>
+                <td class="text-sm text-gray-600">{{ tx.tgl_masuk || tx.tanggal }}</td>
+                <td class="text-sm font-medium text-gray-800">{{ tx.nama_supplier }}</td>
                 <td>
                   <div class="flex flex-col">
                     <span class="font-semibold text-gray-900 text-sm">{{ tx.nama_part }}</span>
                     <span class="text-xs font-mono text-gray-400">{{ tx.kode_part }}</span>
                   </div>
                 </td>
-                <td class="text-right font-semibold text-gray-950 text-sm">
-                  +{{ tx.jumlah }}
-                </td>
-                <td class="text-right text-sm text-gray-600">
-                  {{ formatRupiah(tx.harga_satuan) }}
-                </td>
-                <td class="text-right font-semibold text-sm text-emerald-600">
-                  {{ formatRupiah(tx.jumlah * tx.harga_satuan) }}
-                </td>
+                <td class="text-right font-semibold text-gray-950 text-sm">+{{ tx.jumlah }}</td>
+                <td class="text-right text-sm text-gray-600">{{ formatRupiah(tx.harga_satuan) }}</td>
+                <td class="text-right font-semibold text-sm text-emerald-600">{{ formatRupiah(tx.jumlah * tx.harga_satuan) }}</td>
                 <td class="text-center">
-                  <button class="btn-icon !w-8 !h-8 hover:!border-red-200 hover:!text-red-500" @click="deleteTransaction(tx.id)" title="Hapus Transaksi (Kembalikan Stok)" v-html="icons.trash"></button>
+                  <button class="btn-icon !w-8 !h-8 hover:!border-red-200 hover:!text-red-500" @click="deleteTransaction(tx.id)" title="Hapus Transaksi" v-html="icons.trash"></button>
                 </td>
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Mobile Card List -->
+        <div v-else class="mobile-card-list p-3">
+          <div v-for="tx in filteredTransactions" :key="tx.id" class="mc-item">
+            <div class="mc-row">
+              <div>
+                <div class="mc-title">{{ tx.nama_part }}</div>
+                <div class="mc-subtitle">{{ tx.kode_part }} · {{ tx.nama_supplier }}</div>
+              </div>
+              <span class="mc-badge" style="background:#ECFDF5;color:#059669">+{{ tx.jumlah }} pcs</span>
+            </div>
+            <div class="mc-row">
+              <span style="font-size:11px;color:var(--text-3)" class="font-mono">{{ tx.no_invoice }}</span>
+              <span style="font-size:11px;color:var(--text-2)">{{ tx.tgl_masuk || tx.tanggal }}</span>
+            </div>
+            <div class="mc-row" style="border-top:1px solid rgba(0,0,0,0.05);padding-top:8px">
+              <div>
+                <div class="mc-label">Total</div>
+                <div style="font-size:15px;font-weight:700;color:#059669">{{ formatRupiah(tx.jumlah * tx.harga_satuan) }}</div>
+              </div>
+              <button class="btn-icon hover:!border-red-200 hover:!text-red-500" @click="deleteTransaction(tx.id)" v-html="icons.trash" title="Hapus"></button>
+            </div>
+          </div>
         </div>
       </div>
 

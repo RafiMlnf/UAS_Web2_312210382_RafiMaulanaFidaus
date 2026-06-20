@@ -7,6 +7,8 @@ export default {
   data() {
     return {
       icons,
+      isMobile: window.__mq ? window.__mq.is : false,
+      _mqListener: null,
       loading: true,
       suppliers: [],
       searchQuery: '',
@@ -42,6 +44,13 @@ export default {
   },
   async created() {
     await this.loadData()
+  },
+  mounted() {
+    this._mqListener = () => { this.isMobile = window.__mq ? window.__mq.is : false }
+    window.addEventListener('resize', this._mqListener)
+  },
+  beforeUnmount() {
+    if (this._mqListener) window.removeEventListener('resize', this._mqListener)
   },
   methods: {
     async loadData() {
@@ -161,40 +170,27 @@ export default {
           <p class="text-xs text-gray-400 mt-1">Coba masukkan kata kunci pencarian yang lain.</p>
         </div>
 
-        <div v-else class="table-wrapper">
+        <!-- Desktop Table -->
+        <div v-else-if="!isMobile" class="table-wrapper">
           <table class="data-table compact">
-            <thead>
-              <tr>
-                <th class="w-20">ID</th>
-                <th>Nama Supplier</th>
-                <th>Kontak & Email</th>
-                <th>Alamat</th>
-                <th class="w-24 text-center">Aksi</th>
-              </tr>
-            </thead>
+            <thead><tr>
+              <th class="w-20">ID</th>
+              <th>Nama Supplier</th>
+              <th>Kontak &amp; Email</th>
+              <th>Alamat</th>
+              <th class="w-24 text-center">Aksi</th>
+            </tr></thead>
             <tbody>
               <tr v-for="sup in filteredSuppliers" :key="sup.id" class="hover:bg-gray-50/50">
-                <td>
-                  <code class="text-xs font-mono text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">#{{ sup.id }}</code>
-                </td>
-                <td>
-                  <div class="font-semibold text-gray-900 text-sm">{{ sup.nama_supplier }}</div>
-                </td>
+                <td><code class="text-xs font-mono text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">#{{ sup.id }}</code></td>
+                <td><div class="font-semibold text-gray-900 text-sm">{{ sup.nama_supplier }}</div></td>
                 <td>
                   <div class="text-xs text-gray-800 flex flex-col gap-0.5">
-                    <span class="flex items-center gap-1.5 text-gray-600">
-                      <span class="w-3 h-3 text-gray-400" v-html="icons.phone"></span>
-                      {{ sup.no_telp || '-' }}
-                    </span>
-                    <span class="flex items-center gap-1.5 text-gray-600">
-                      <span class="w-3 h-3 text-gray-400" v-html="icons.mail"></span>
-                      {{ sup.email || '-' }}
-                    </span>
+                    <span class="flex items-center gap-1.5 text-gray-600"><span class="w-3 h-3 text-gray-400" v-html="icons.phone"></span>{{ sup.no_telp || '-' }}</span>
+                    <span class="flex items-center gap-1.5 text-gray-600"><span class="w-3 h-3 text-gray-400" v-html="icons.mail"></span>{{ sup.email || '-' }}</span>
                   </div>
                 </td>
-                <td class="text-sm text-gray-600 max-w-xs truncate" :title="sup.alamat">
-                  {{ sup.alamat || '-' }}
-                </td>
+                <td class="text-sm text-gray-600 max-w-xs truncate" :title="sup.alamat">{{ sup.alamat || '-' }}</td>
                 <td class="text-center">
                   <div class="flex items-center justify-center gap-1.5">
                     <button class="btn-icon !w-8 !h-8" @click="openEditModal(sup)" title="Ubah" v-html="icons.pencil"></button>
@@ -204,6 +200,26 @@ export default {
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Mobile Card List -->
+        <div v-else class="mobile-card-list p-3">
+          <div v-for="sup in filteredSuppliers" :key="sup.id" class="mc-item">
+            <div class="mc-row">
+              <div>
+                <div class="mc-title">{{ sup.nama_supplier }}</div>
+                <div class="mc-subtitle">{{ sup.alamat || 'Tidak ada alamat' }}</div>
+              </div>
+              <div class="mc-actions" style="border:none;padding:0">
+                <button class="btn-icon" @click="openEditModal(sup)" v-html="icons.pencil" title="Ubah"></button>
+                <button class="btn-icon hover:!border-red-200 hover:!text-red-500" @click="deleteSupplier(sup.id)" v-html="icons.trash" title="Hapus"></button>
+              </div>
+            </div>
+            <div class="mc-row" style="border-top:1px solid rgba(0,0,0,0.05);padding-top:8px;margin-top:0">
+              <span style="font-size:11px;color:var(--text-2)" class="flex items-center gap-1" v-html="'&#9990; ' + (sup.no_telp || '-')"></span>
+              <span style="font-size:11px;color:var(--text-2)">{{ sup.email || '-' }}</span>
+            </div>
+          </div>
         </div>
       </div>
 

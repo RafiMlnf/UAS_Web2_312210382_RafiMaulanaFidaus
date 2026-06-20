@@ -117,11 +117,18 @@ class PartModel extends Model
         )->getRow()->total ?? 0;
         $partAktif      = $this->where('status', 'aktif')->countAllResults();
 
+        $totalKategori  = $this->db->table('kategori_part')->countAllResults();
+        $totalBrand     = $this->db->table('brand')->countAllResults();
+        $totalSupplier  = $this->db->table('supplier')->countAllResults();
+
         return [
             'total_part'       => $totalPart,
             'part_aktif'       => $partAktif,
             'stok_menipis'     => (int) $stokMenipis,
             'total_nilai_stok' => (float) $totalNilaiStok,
+            'total_kategori'   => $totalKategori,
+            'total_brand'      => $totalBrand,
+            'total_supplier'   => $totalSupplier,
         ];
     }
 }

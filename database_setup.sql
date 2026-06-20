@@ -208,6 +208,14 @@ INSERT INTO part (kode_part, nama_part, kategori_id, brand_id, supplier_id, spes
   -- VGA
   ('VGA-ASU-001', 'ASUS TUF RX 6700 XT 12GB', 6, 3, 4, 'RDNA2, 12GB GDDR6, PCIe 4.0, 3x DP + 1x HDMI, 180W TDP',     5500000, 6500000, 4,  2, 'pcs', 'https://m.media-amazon.com/images/I/71OOHy5RRWL._AC_SL1500_.jpg', 'aktif'),
   ('VGA-MSI-001', 'MSI RTX 3070 Gaming X 8GB', 6, 4, 4, 'Ampere, 8GB GDDR6, PCIe 4.0, 3x DP + 1x HDMI, 220W TDP',    7200000, 8500000, 3,  2, 'pcs', 'https://m.media-amazon.com/images/I/71w2UrLmhOL._AC_SL1500_.jpg', 'aktif'),
+  ('VGA-MSI-002', 'MSI GTX 1650 Ventus XS 4GB', 6, 4, 4, 'Turing Architecture, 4GB GDDR6, 128-bit, Twin Fan, No PCIe Power Required', 2000000, 2400000, 5, 2, 'pcs', 'https://m.media-amazon.com/images/I/71p0g0S6KOL._AC_SL1500_.jpg', 'aktif'),
+  ('VGA-ASU-002', 'ASUS TUF GTX 1650 Super 4GB', 6, 3, 4, 'Turing Architecture, 4GB GDDR6, 128-bit, Dual Fan, TUF Durability', 2400000, 2900000, 4, 2, 'pcs', 'https://m.media-amazon.com/images/I/71dO1S-y+8L._AC_SL1500_.jpg', 'aktif'),
+  ('VGA-GIG-002', 'Gigabyte GTX 1660 OC 6GB', 6, 10, 4, 'Turing, 6GB GDDR5, 192-bit, Windforce 2X Cooling System', 3100000, 3700000, 6, 2, 'pcs', 'https://m.media-amazon.com/images/I/81577Vz-E3L._AC_SL1500_.jpg', 'aktif'),
+  ('VGA-MSI-003', 'MSI GTX 1660 Super Ventus XS 6GB', 6, 4, 4, 'Turing, 6GB GDDR6, 192-bit, Ventus Dual Fan Cooling', 3400000, 4000000, 8, 2, 'pcs', 'https://m.media-amazon.com/images/I/81dG2qS+WNL._AC_SL1500_.jpg', 'aktif'),
+  ('VGA-ASU-003', 'ASUS ROG Strix GTX 1660 Ti 6GB', 6, 3, 4, 'Turing, 6GB GDDR6, 192-bit, Triple Fan ROG Cooling, Aura Sync', 3800000, 4500000, 3, 2, 'pcs', 'https://m.media-amazon.com/images/I/81-e2+XwS+L._AC_SL1500_.jpg', 'aktif'),
+  ('VGA-GIG-003', 'Gigabyte RTX 2060 Windforce 6GB', 6, 10, 4, 'Turing, Ray Tracing, 6GB GDDR6, 192-bit, Dual Windforce Fan', 4200000, 5000000, 5, 2, 'pcs', 'https://m.media-amazon.com/images/I/81Q1yP+0T3L._AC_SL1500_.jpg', 'aktif'),
+  ('VGA-MSI-004', 'MSI RTX 2060 Super Gaming X 8GB', 6, 4, 4, 'Turing, Ray Tracing, 8GB GDDR6, 256-bit, Twin Frozr 7 Cooling', 4900000, 5800000, 4, 2, 'pcs', 'https://m.media-amazon.com/images/I/71rQ66Q+KSL._AC_SL1500_.jpg', 'aktif'),
+  ('VGA-ASU-004', 'ASUS Dual RTX 3050 OC 8GB', 6, 3, 4, 'Ampere, Ray Tracing, DLSS, 8GB GDDR6, 128-bit, Dual Axial-tech Fans', 4500000, 5300000, 7, 2, 'pcs', 'https://m.media-amazon.com/images/I/71R2nS-u7oL._AC_SL1500_.jpg', 'aktif'),
 
   -- Cooling
   ('CLG-NOC-001', 'Noctua NH-D15 CPU Cooler',  7, 12, 2, 'Dual Tower, 2x NF-A15 PWM, TDP 250W+, Socket LGA1700/AM5',   1200000, 1550000, 8,  3, 'pcs', 'https://m.media-amazon.com/images/I/71I6LMB2g3L._AC_SL1500_.jpg', 'aktif'),

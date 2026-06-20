@@ -6,20 +6,34 @@ export default {
   data() {
     return {
       user: null,
-      showLayout: false,
+      sidebarOpen: false,
     }
   },
   computed: {
     isFullWidthPage() {
       return ['/login', '/', '/home'].includes(this.$route.path)
+    },
+    pageTitle() {
+      const map = {
+        '/dashboard': 'Dashboard',
+        '/part': 'Part',
+        '/kategori': 'Kategori',
+        '/brand': 'Brand',
+        '/supplier': 'Supplier',
+        '/transaksi-masuk': 'Stok Masuk',
+        '/transaksi-keluar': 'Stok Keluar',
+      }
+      return map[this.$route.path] || 'E-Inventory PC'
     }
   },
   watch: {
-    $route() { this.syncUser() }
+    $route() {
+      this.syncUser()
+      this.sidebarOpen = false   // close sidebar on navigation
+    }
   },
   created() {
     this.syncUser()
-    // expose router for axios-config.js 401 redirect
     window.__vueRouter__ = this.$router
   },
   methods: {
@@ -33,6 +47,7 @@ export default {
       } catch (_) { /* ignore */ }
       localStorage.clear()
       this.user = null
+      this.sidebarOpen = false
       this.$router.push('/login')
     }
   },
@@ -41,9 +56,23 @@ export default {
       <router-view />
     </template>
     <template v-else>
+      <!-- Sidebar backdrop (mobile) -->
+      <div
+        class="sidebar-overlay"
+        :class="{ active: sidebarOpen }"
+        @click="sidebarOpen = false"
+      ></div>
+
       <div class="app-layout">
-        <Sidebar :user="user" @logout="handleLogout" />
+        <Sidebar :user="user" :open="sidebarOpen" @logout="handleLogout" @close="sidebarOpen = false" />
         <main class="app-main">
+          <!-- Mobile topbar -->
+          <div class="mobile-topbar">
+            <button class="hamburger" @click="sidebarOpen = !sidebarOpen" aria-label="Menu">
+              <span></span><span></span><span></span>
+            </button>
+            <span class="mobile-topbar-title">{{ pageTitle }}</span>
+          </div>
           <div class="page-content">
             <router-view />
           </div>

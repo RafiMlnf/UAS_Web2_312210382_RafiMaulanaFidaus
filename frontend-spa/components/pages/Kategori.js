@@ -7,6 +7,8 @@ export default {
   data() {
     return {
       icons,
+      isMobile: window.__mq ? window.__mq.is : false,
+      _mqListener: null,
       loading: true,
       categories: [],
       searchQuery: '',
@@ -38,6 +40,13 @@ export default {
   },
   async created() {
     await this.loadData()
+  },
+  mounted() {
+    this._mqListener = () => { this.isMobile = window.__mq ? window.__mq.is : false }
+    window.addEventListener('resize', this._mqListener)
+  },
+  beforeUnmount() {
+    if (this._mqListener) window.removeEventListener('resize', this._mqListener)
   },
   methods: {
     async loadData() {
@@ -151,7 +160,8 @@ export default {
           <p class="text-xs text-gray-400 mt-1">Coba masukkan kata kunci pencarian yang lain.</p>
         </div>
 
-        <div v-else class="table-wrapper">
+        <!-- Desktop Table -->
+        <div v-else-if="!isMobile" class="table-wrapper">
           <table class="data-table compact">
             <thead>
               <tr>
@@ -163,18 +173,14 @@ export default {
             </thead>
             <tbody>
               <tr v-for="cat in filteredCategories" :key="cat.id" class="hover:bg-gray-50/50">
-                <td>
-                  <code class="text-xs font-mono text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">#{{ cat.id }}</code>
-                </td>
+                <td><code class="text-xs font-mono text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">#{{ cat.id }}</code></td>
                 <td>
                   <div class="flex items-center gap-2">
                     <span class="text-primary-DEFAULT w-5 h-5 flex items-center justify-center bg-primary/10 rounded-lg" v-html="icons.getCategoryIcon(cat.nama_kategori)"></span>
                     <div class="font-semibold text-gray-900 text-sm">{{ cat.nama_kategori }}</div>
                   </div>
                 </td>
-                <td class="text-sm text-gray-600">
-                  {{ cat.keterangan || '-' }}
-                </td>
+                <td class="text-sm text-gray-600">{{ cat.keterangan || '-' }}</td>
                 <td class="text-center">
                   <div class="flex items-center justify-center gap-1.5">
                     <button class="btn-icon !w-8 !h-8" @click="openEditModal(cat)" title="Ubah" v-html="icons.pencil"></button>
@@ -184,6 +190,26 @@ export default {
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Mobile Card List -->
+        <div v-else class="mobile-card-list p-3">
+          <div v-for="cat in filteredCategories" :key="cat.id" class="mc-item">
+            <div class="mc-row">
+              <div class="flex items-center gap-3">
+                <span class="w-9 h-9 flex items-center justify-center rounded-xl" style="background:var(--primary-light);color:var(--primary)" v-html="icons.getCategoryIcon(cat.nama_kategori)"></span>
+                <div>
+                  <div class="mc-title">{{ cat.nama_kategori }}</div>
+                  <div class="mc-subtitle">{{ cat.keterangan || 'Tidak ada keterangan' }}</div>
+                </div>
+              </div>
+              <code class="text-[10px] font-mono text-gray-400">#{{ cat.id }}</code>
+            </div>
+            <div class="mc-actions">
+              <button class="btn-icon" @click="openEditModal(cat)" v-html="icons.pencil" title="Ubah"></button>
+              <button class="btn-icon hover:!border-red-200 hover:!text-red-500" @click="deleteCategory(cat.id)" v-html="icons.trash" title="Hapus"></button>
+            </div>
+          </div>
         </div>
       </div>
 

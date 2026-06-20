@@ -7,6 +7,8 @@ export default {
   data() {
     return {
       icons,
+      isMobile: window.__mq ? window.__mq.is : false,
+      _mqListener: null,
       loading: true,
       brands: [],
       searchQuery: '',
@@ -38,6 +40,13 @@ export default {
   },
   async created() {
     await this.loadData()
+  },
+  mounted() {
+    this._mqListener = () => { this.isMobile = window.__mq ? window.__mq.is : false }
+    window.addEventListener('resize', this._mqListener)
+  },
+  beforeUnmount() {
+    if (this._mqListener) window.removeEventListener('resize', this._mqListener)
   },
   methods: {
     async loadData() {
@@ -155,15 +164,14 @@ export default {
           <p class="text-xs text-gray-400 mt-1">Coba masukkan kata kunci pencarian yang lain.</p>
         </div>
 
-        <div v-else class="table-wrapper">
+        <!-- Desktop Table -->
+        <div v-else-if="!isMobile" class="table-wrapper">
           <table class="data-table compact">
-            <thead>
-              <tr>
-                <th class="w-16 text-center">Logo</th>
-                <th>Nama Brand</th>
-                <th class="w-24 text-center">Aksi</th>
-              </tr>
-            </thead>
+            <thead><tr>
+              <th class="w-16 text-center">Logo</th>
+              <th>Nama Brand</th>
+              <th class="w-24 text-center">Aksi</th>
+            </tr></thead>
             <tbody>
               <tr v-for="b in filteredBrands" :key="b.id" class="hover:bg-gray-50/50">
                 <td class="text-center">
@@ -172,9 +180,7 @@ export default {
                     <span v-else class="text-[10px] text-gray-400 font-bold">{{ b.nama_brand.substring(0, 2).toUpperCase() }}</span>
                   </div>
                 </td>
-                <td>
-                  <div class="font-semibold text-gray-900 text-sm">{{ b.nama_brand }}</div>
-                </td>
+                <td><div class="font-semibold text-gray-900 text-sm">{{ b.nama_brand }}</div></td>
                 <td class="text-center">
                   <div class="flex items-center justify-center gap-1.5">
                     <button class="btn-icon !w-8 !h-8" @click="openEditModal(b)" title="Ubah" v-html="icons.pencil"></button>
@@ -184,6 +190,25 @@ export default {
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Mobile Card List -->
+        <div v-else class="mobile-card-list p-3">
+          <div v-for="b in filteredBrands" :key="b.id" class="mc-item">
+            <div class="mc-row">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-white border border-gray-100 flex items-center justify-center p-1 overflow-hidden">
+                  <img v-if="b.logo_url" :src="b.logo_url" :alt="b.nama_brand" class="max-w-full max-h-full object-contain" referrerpolicy="no-referrer" @error="b.logo_url = null" />
+                  <span v-else class="text-xs font-bold text-gray-400">{{ b.nama_brand.substring(0,2).toUpperCase() }}</span>
+                </div>
+                <div class="mc-title">{{ b.nama_brand }}</div>
+              </div>
+              <div class="mc-actions" style="border:none;padding:0">
+                <button class="btn-icon" @click="openEditModal(b)" v-html="icons.pencil" title="Ubah"></button>
+                <button class="btn-icon hover:!border-red-200 hover:!text-red-500" @click="deleteBrand(b.id)" v-html="icons.trash" title="Hapus"></button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

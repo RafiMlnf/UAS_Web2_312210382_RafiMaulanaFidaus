@@ -203,12 +203,35 @@ class PartController extends ResourceController
         $masukRaw  = $db->query($masukSql)->getResultArray();
         $keluarRaw = $db->query($keluarSql)->getResultArray();
 
-        // Gabungkan semua label/grp
-        $allGrps = array_unique(array_merge(
-            array_column($masukRaw,  'grp'),
-            array_column($keluarRaw, 'grp')
-        ));
-        sort($allGrps);
+        // Generate complete period ranges to ensure all gaps (e.g. all 12 months) are filled with 0
+        $allGrps = [];
+        $labelsIdx = [];
+
+        if ($period === 'monthly') {
+            for ($i = 11; $i >= 0; $i--) {
+                $time = strtotime("-$i months");
+                $grp = date('Y-m', $time);
+                $allGrps[] = $grp;
+                $labelsIdx[$grp] = date('M Y', $time);
+            }
+        } elseif ($period === 'weekly') {
+            for ($i = 11; $i >= 0; $i--) {
+                $time = strtotime("-$i weeks");
+                $grp = date('oW', $time);
+                $allGrps[] = $grp;
+                
+                $w = date('N', $time);
+                $mondayTime = $time - ($w - 1) * 86400;
+                $labelsIdx[$grp] = date('d M', $mondayTime);
+            }
+        } else { // daily
+            for ($i = 29; $i >= 0; $i--) {
+                $time = strtotime("-$i days");
+                $grp = date('Y-m-d', $time);
+                $allGrps[] = $grp;
+                $labelsIdx[$grp] = date('d M', $time);
+            }
+        }
 
         // Index masuk & keluar by grp
         $masukIdx  = array_column($masukRaw,  null, 'grp');
@@ -221,7 +244,7 @@ class PartController extends ResourceController
         $keluarTx   = [];
 
         foreach ($allGrps as $grp) {
-            $labels[]   = $masukIdx[$grp]['label']  ?? $keluarIdx[$grp]['label']  ?? $grp;
+            $labels[]   = $masukIdx[$grp]['label']  ?? $keluarIdx[$grp]['label']  ?? ($labelsIdx[$grp] ?? $grp);
             $masuk[]    = (int) ($masukIdx[$grp]['jumlah_unit']  ?? 0);
             $keluar[]   = (int) ($keluarIdx[$grp]['jumlah_unit'] ?? 0);
             $masukTx[]  = (int) ($masukIdx[$grp]['jumlah_tx']    ?? 0);
