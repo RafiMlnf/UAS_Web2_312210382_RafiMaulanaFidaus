@@ -15,8 +15,10 @@ $routes->post('api/auth/logout', 'AuthController::logout', ['filter' => 'auth'])
 // Public read-only: list part, kategori, brand, supplier
 $routes->get('api/part/stok-menipis',    'PartController::stokMenipis');
 $routes->get('api/part/dashboard-stats', 'PartController::dashboardStats');
+$routes->get('api/part/chart-stats',     'PartController::chartStats');
 $routes->get('api/part',     'PartController::index');
 $routes->get('api/part/(:num)', 'PartController::show/$1');
+
 
 $routes->get('api/kategori',         'KategoriController::index');
 $routes->get('api/kategori/(:num)',   'KategoriController::show/$1');

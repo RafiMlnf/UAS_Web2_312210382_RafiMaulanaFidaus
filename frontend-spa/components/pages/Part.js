@@ -177,7 +177,7 @@ export default {
       </div>
 
       <!-- ── Search & Filter Panel ────────────── -->
-      <div class="glass-card p-3 mb-4 flex flex-col md:flex-row gap-3 items-center justify-between">
+      <div class="glass-card p-3 mb-4 flex flex-col md:flex-row gap-4 items-center justify-between">
         <div class="relative w-full md:max-w-md">
           <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400" v-html="icons.search"></span>
           <input
@@ -187,7 +187,7 @@ export default {
             v-model="searchQuery"
           />
         </div>
-        <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+        <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
           <select class="form-control !py-1.5 !px-2.5 w-full md:w-36 text-xs" v-model="filterCategory">
             <option value="">Semua Kategori</option>
             <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.nama_kategori }}</option>

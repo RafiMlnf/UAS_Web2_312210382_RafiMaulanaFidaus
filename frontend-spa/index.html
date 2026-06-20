@@ -17,7 +17,7 @@
       theme: {
         extend: {
           fontFamily: {
-            sans: ['"Product Sans"', '"Google Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            sans: ['"Google Sans"', '"Product Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
           },
           colors: {
             primary:  { DEFAULT: '#1A70F5', dark: '#1260D9', light: '#EBF2FF' },
@@ -71,8 +71,11 @@
 
     html, body { height: 100%; overflow: hidden; }
 
-    body {
+    body, input, select, textarea, button {
       font-family: "Google Sans", "Product Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
       font-size: 14px;
       color: var(--text-1);
       background: var(--bg);
@@ -366,15 +369,15 @@
     table.data-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 13px;
+      font-size: 12.5px;
     }
     .data-table thead tr {
       border-bottom: 1px solid var(--border);
     }
     .data-table thead th {
-      padding: 8px 12px;
+      padding: 6px 10px;
       text-align: left;
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 600;
       color: var(--text-3);
       text-transform: uppercase;
@@ -391,7 +394,7 @@
     .data-table tbody tr:last-child { border-bottom: none; }
     .data-table tbody tr:hover { background: rgba(26, 112, 245, 0.04); }
     .data-table tbody td {
-      padding: 8px 12px;
+      padding: 6px 10px;
       color: var(--text-1);
       vertical-align: middle;
     }
@@ -401,12 +404,21 @@
     
     /* ── Compact Table ───────────────────────── */
     table.data-table.compact thead th {
-      padding: 5px 8px;
-      font-size: 10px;
+      padding: 4px 6px;
+      font-size: 9.5px;
     }
     table.data-table.compact tbody td {
-      padding: 5px 8px;
-      font-size: 12px;
+      padding: 4px 6px;
+      font-size: 11.5px;
+    }
+
+    /* ── Hide scrollbar helper ───────────────── */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
 
     /* ── Stats Card ──────────────────────────── */
@@ -886,7 +898,7 @@
       position: relative;
       height: 100vh;
       overflow-y: auto;
-      font-family: 'Google Sans', 'Outfit', sans-serif;
+      font-family: 'Product Sans', 'Google Sans', 'Outfit', sans-serif;
     }
     .public-header {
       background: rgba(255, 255, 255, 0.75) !important;
@@ -920,15 +932,18 @@
   
   <div id="app"></div>
 
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
   <!-- Vue 3 + Vue Router 4 + Axios (CDN) -->
   <script src="https://unpkg.com/vue@3.4.21/dist/vue.global.prod.js"></script>
   <script src="https://unpkg.com/vue-router@4.3.0/dist/vue-router.global.prod.js"></script>
   <script src="https://unpkg.com/axios@1.6.7/dist/axios.min.js"></script>
 
   <script type="module">
-    import App    from './components/App.js?v=1.0.15'
-    import router from './components/router.js?v=1.0.15'
-    import './components/axios-config.js?v=1.0.15'
+    import App    from './components/App.js?v=1.0.26'
+    import router from './components/router.js?v=1.0.26'
+    import './components/axios-config.js?v=1.0.26'
 
     const { createApp } = Vue
     createApp(App).use(router).mount('#app')

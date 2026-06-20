@@ -152,7 +152,7 @@ export default {
         </div>
 
         <div v-else class="table-wrapper">
-          <table class="data-table">
+          <table class="data-table compact">
             <thead>
               <tr>
                 <th class="w-20">ID</th>

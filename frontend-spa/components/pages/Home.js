@@ -13,29 +13,53 @@ export default {
         total_supplier: 0
       },
       parts: [],
-      searchQuery: ''
+      categories: [],
+      searchQuery: '',
+      filterCategory: '',
+      isLoggedIn: false,
+      tickerInterval: null
     }
   },
   computed: {
     filteredParts() {
       return this.parts.filter(p => {
+        const matchesCategory = !this.filterCategory || Number(p.kategori_id) === Number(this.filterCategory)
         const query = this.searchQuery.toLowerCase()
-        return (
+        const matchesSearch = (
           p.nama_part.toLowerCase().includes(query) ||
           p.kode_part.toLowerCase().includes(query) ||
           p.nama_kategori.toLowerCase().includes(query) ||
           p.nama_brand.toLowerCase().includes(query)
         )
+        return matchesCategory && matchesSearch
       })
     }
   },
   async created() {
+    this.isLoggedIn = !!localStorage.getItem('token')
     await Promise.all([
       this.loadStats(),
-      this.loadParts()
+      this.loadParts(),
+      this.loadCategories()
     ])
   },
+  mounted() {
+    this.startTicker()
+  },
+  beforeUnmount() {
+    this.stopTicker()
+  },
   methods: {
+    async loadCategories() {
+      try {
+        const res = await axios.get('/api/kategori')
+        if (res.data.status) {
+          this.categories = res.data.data
+        }
+      } catch (err) {
+        console.error('Failed to load categories', err)
+      }
+    },
     async loadStats() {
       try {
         const res = await axios.get('/api/part/dashboard-stats')
@@ -67,6 +91,31 @@ export default {
       if (p.stok === 0) return 'bg-red-50 text-red-700 border-red-100'
       if (p.stok <= p.stok_minimum) return 'bg-amber-50 text-amber-700 border-amber-100'
       return 'bg-emerald-50 text-emerald-700 border-emerald-100'
+    },
+    startTicker() {
+      console.log('startTicker called');
+      this.stopTicker()
+      this.tickerInterval = setInterval(() => {
+        const el = this.$refs.tickerContainer
+        if (!el || this.parts.length === 0) return
+
+        const cardWidth = 276 // width (260px) + gap (16px)
+        const maxScroll = el.scrollWidth - el.clientWidth
+        
+        let newScrollLeft = el.scrollLeft + cardWidth
+        if (newScrollLeft >= maxScroll + 10) {
+          el.scrollTo({ left: 0, behavior: 'smooth' })
+        } else {
+          el.scrollTo({ left: newScrollLeft, behavior: 'smooth' })
+        }
+      }, 4000) // Scroll slowly every 4 seconds (satu-satu)
+    },
+    stopTicker() {
+      console.log('stopTicker called, interval active:', !!this.tickerInterval);
+      if (this.tickerInterval) {
+        clearInterval(this.tickerInterval)
+        this.tickerInterval = null
+      }
     }
   },
   template: `
@@ -76,16 +125,42 @@ export default {
       <div class="glow-sphere" style="top: 40%; right: -5%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(99,102,241,0.06) 0%, rgba(99,102,241,0) 70%);"></div>
 
       <!-- Header / Navbar -->
-      <header class="public-header glass-card flex items-center justify-between px-6 py-4 mb-10">
+      <header class="public-header glass-card flex items-center justify-between px-6 py-4 mb-8">
         <div class="flex items-center gap-2.5">
           <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white" v-html="icons.logo"></div>
           <span class="text-base font-bold text-gray-900 tracking-tight">E-Inventory PC</span>
         </div>
-        <router-link to="/login" class="btn btn-primary btn-sm flex items-center gap-1.5 shadow-sm">
+        <router-link v-if="isLoggedIn" to="/dashboard" class="btn btn-sm flex items-center gap-1.5 shadow-sm bg-white text-gray-900 border border-gray-900 hover:bg-gray-50 transition-all">
+          <span>Ke Dashboard</span>
+          <span v-html="icons.chevronRight"></span>
+        </router-link>
+        <router-link v-else to="/login" class="btn btn-primary btn-sm flex items-center gap-1.5 shadow-sm">
           <span>Masuk Ke Sistem</span>
           <span v-html="icons.chevronRight"></span>
         </router-link>
       </header>
+
+      <!-- Autoscroll Ticker -->
+      <div v-if="!loading && parts.length > 0" class="relative overflow-hidden w-full mb-8 py-3 glass-card rounded-xl shadow-sm border border-white/40">
+        <div ref="tickerContainer" class="flex gap-4 px-4 overflow-x-auto scroll-smooth no-scrollbar" style="scrollbar-width: none;" @mouseenter="stopTicker" @mouseleave="startTicker">
+          <div v-for="p in parts" :key="'ticker-' + p.id" class="flex items-center gap-3 bg-white/60 backdrop-blur-md border border-white/80 rounded-xl p-2.5 min-w-[260px] max-w-[260px] flex-shrink-0 shadow-xs transition-all duration-300 hover:scale-[1.02] hover:bg-white/80">
+            <div class="w-12 h-12 rounded-lg bg-white border border-gray-150 flex items-center justify-center p-1 overflow-hidden flex-shrink-0 shadow-2xs">
+              <img v-if="p.gambar_url" :src="p.gambar_url" :alt="p.nama_part" class="max-w-full max-h-full object-contain" referrerpolicy="no-referrer" />
+              <span v-else class="text-gray-300 w-6 h-6 flex items-center justify-center" v-html="icons.box"></span>
+            </div>
+            <div class="text-left leading-tight flex-1 min-w-0">
+              <div class="text-xs font-bold text-gray-950 truncate">{{ p.nama_part }}</div>
+              <div class="text-[10px] text-gray-500 mt-0.5 truncate">{{ p.nama_kategori }} • {{ p.nama_brand }}</div>
+              <div class="flex items-center justify-between mt-1">
+                <span class="text-xs font-semibold text-blue-600">{{ formatRupiah(p.harga_jual) }}</span>
+                <span class="text-[9px] font-semibold px-1.5 py-0.2 rounded-full border" :class="Number(p.stok) === 0 ? 'bg-red-50 text-red-700 border-red-100' : (Number(p.stok) <= Number(p.stok_minimum) ? 'bg-amber-50 text-amber-700 border-amber-100' : 'bg-emerald-50 text-emerald-700 border-emerald-100')">
+                  Stok: {{ p.stok }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Hero Section -->
       <div class="hero-section text-center max-w-2xl mx-auto mb-12">
@@ -162,6 +237,27 @@ export default {
           </div>
         </div>
 
+        <!-- Category Filter Chips with Spacing -->
+        <div v-if="categories.length > 0" class="flex flex-wrap gap-2.5 mb-6 border-b border-gray-150/40 pb-5">
+          <button
+            class="px-4 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200"
+            :class="!filterCategory ? 'bg-blue-600 text-white border-blue-600 shadow-sm' : 'bg-white/80 text-gray-600 border-gray-200/80 hover:bg-gray-50'"
+            @click="filterCategory = ''"
+          >
+            Semua Komponen
+          </button>
+          <button
+            v-for="cat in categories"
+            :key="cat.id"
+            class="px-4 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 flex items-center gap-1.5"
+            :class="filterCategory == cat.id ? 'bg-blue-600 text-white border-blue-600 shadow-sm' : 'bg-white/80 text-gray-600 border-gray-200/80 hover:bg-gray-50'"
+            @click="filterCategory = cat.id"
+          >
+            <span v-html="icons.getCategoryIcon(cat.nama_kategori)" class="opacity-70"></span>
+            {{ cat.nama_kategori }}
+          </button>
+        </div>
+ 
         <div v-if="loading" class="flex items-center justify-center py-20 text-gray-400">
           <div class="flex flex-col items-center gap-3">
             <div class="spinner" style="border-color:rgba(26,112,245,0.2);border-top-color:#1A70F5;width:28px;height:28px;border-width:2.5px;"></div>
@@ -176,7 +272,7 @@ export default {
         </div>
 
         <div v-else class="table-wrapper">
-          <table class="data-table">
+          <table class="data-table compact">
             <thead>
               <tr>
                 <th class="w-32">Kode SKU</th>

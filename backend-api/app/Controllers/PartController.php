@@ -140,6 +140,102 @@ class PartController extends ResourceController
     }
 
     /**
+     * GET /api/part/chart-stats?period=daily|weekly|monthly
+     * Statistik tren transaksi masuk & keluar per periode
+     */
+    public function chartStats()
+    {
+        $period = $this->request->getGet('period') ?? 'daily';
+        $kategoriId = $this->request->getGet('kategori_id');
+        $db     = \Config\Database::connect();
+
+        $kategoriCond = '';
+        if ($kategoriId && is_numeric($kategoriId)) {
+            $kategoriCond = "AND p.kategori_id = " . (int)$kategoriId;
+        }
+
+        // Tentukan format grouping dan jumlah periode
+        switch ($period) {
+            case 'weekly':
+                $groupFmt  = "YEARWEEK(%s, 1)";   // ISO week
+                $labelFmt  = "DATE_FORMAT(MIN(%s), '%%d %%b')";
+                $dateFilter = 'INTERVAL 12 WEEK';
+                break;
+            case 'monthly':
+                $groupFmt  = "DATE_FORMAT(%s, '%%Y-%%m')";
+                $labelFmt  = "DATE_FORMAT(MIN(%s), '%%b %%Y')";
+                $dateFilter = 'INTERVAL 12 MONTH';
+                break;
+            default: // daily
+                $groupFmt  = "DATE(%s)";
+                $labelFmt  = "DATE_FORMAT(MIN(%s), '%%d %%b')";
+                $dateFilter = 'INTERVAL 30 DAY';
+        }
+
+        // Query masuk
+        $masukSql = sprintf(
+            "SELECT {$labelFmt} as label,
+                    {$groupFmt} as grp,
+                    SUM(jumlah) as jumlah_unit,
+                    COUNT(*) as jumlah_tx
+             FROM transaksi_masuk tm
+             JOIN part p ON tm.part_id = p.id
+             WHERE tm.tgl_masuk >= DATE_SUB(CURDATE(), %s) {$kategoriCond}
+             GROUP BY grp
+             ORDER BY grp ASC",
+            'tm.tgl_masuk', 'tm.tgl_masuk', $dateFilter
+        );
+
+        // Query keluar
+        $keluarSql = sprintf(
+            "SELECT {$labelFmt} as label,
+                    {$groupFmt} as grp,
+                    SUM(jumlah) as jumlah_unit,
+                    COUNT(*) as jumlah_tx
+             FROM transaksi_keluar tk
+             JOIN part p ON tk.part_id = p.id
+             WHERE tk.tgl_keluar >= DATE_SUB(CURDATE(), %s) {$kategoriCond}
+             GROUP BY grp
+             ORDER BY grp ASC",
+            'tk.tgl_keluar', 'tk.tgl_keluar', $dateFilter
+        );
+
+        $masukRaw  = $db->query($masukSql)->getResultArray();
+        $keluarRaw = $db->query($keluarSql)->getResultArray();
+
+        // Gabungkan semua label/grp
+        $allGrps = array_unique(array_merge(
+            array_column($masukRaw,  'grp'),
+            array_column($keluarRaw, 'grp')
+        ));
+        sort($allGrps);
+
+        // Index masuk & keluar by grp
+        $masukIdx  = array_column($masukRaw,  null, 'grp');
+        $keluarIdx = array_column($keluarRaw, null, 'grp');
+
+        $labels     = [];
+        $masuk      = [];
+        $keluar     = [];
+        $masukTx    = [];
+        $keluarTx   = [];
+
+        foreach ($allGrps as $grp) {
+            $labels[]   = $masukIdx[$grp]['label']  ?? $keluarIdx[$grp]['label']  ?? $grp;
+            $masuk[]    = (int) ($masukIdx[$grp]['jumlah_unit']  ?? 0);
+            $keluar[]   = (int) ($keluarIdx[$grp]['jumlah_unit'] ?? 0);
+            $masukTx[]  = (int) ($masukIdx[$grp]['jumlah_tx']    ?? 0);
+            $keluarTx[] = (int) ($keluarIdx[$grp]['jumlah_tx']   ?? 0);
+        }
+
+        return $this->respond([
+            'status' => true,
+            'period' => $period,
+            'data'   => compact('labels', 'masuk', 'keluar', 'masukTx', 'keluarTx'),
+        ]);
+    }
+
+    /**
      * GET /api/part/dashboard-stats
      * Statistik untuk Dashboard
      */
