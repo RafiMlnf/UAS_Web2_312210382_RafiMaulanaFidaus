@@ -110,10 +110,10 @@ class PartModel extends Model
     {
         $totalPart      = $this->countAll();
         $totalNilaiStok = $this->db->query(
-            'SELECT SUM(stok * harga_beli) as total FROM part WHERE status = "aktif"'
+            "SELECT SUM(stok * harga_beli) as total FROM part WHERE status = 'aktif'"
         )->getRow()->total ?? 0;
         $stokMenipis    = $this->db->query(
-            'SELECT COUNT(*) as total FROM part WHERE stok <= stok_minimum AND status = "aktif"'
+            "SELECT COUNT(*) as total FROM part WHERE stok <= stok_minimum AND status = 'aktif'"
         )->getRow()->total ?? 0;
         $partAktif      = $this->where('status', 'aktif')->countAllResults();
 
