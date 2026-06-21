@@ -4,13 +4,13 @@
 -- ============================================================
 
 -- Hapus database lama jika ada agar bersih saat di-import ulang
-DROP DATABASE IF EXISTS inventory_part_pc_db;
+-- DROP DATABASE IF EXISTS inventory_part_pc_db;
 
-CREATE DATABASE IF NOT EXISTS inventory_part_pc_db
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
+-- CREATE DATABASE IF NOT EXISTS inventory_part_pc_db
+--   CHARACTER SET utf8mb4
+--   COLLATE utf8mb4_unicode_ci;
 
-USE inventory_part_pc_db;
+-- USE inventory_part_pc_db;
 
 -- Hapus tabel-tabel lama jika ada (berguna jika di-import ke database yang sudah ada)
 SET FOREIGN_KEY_CHECKS = 0;

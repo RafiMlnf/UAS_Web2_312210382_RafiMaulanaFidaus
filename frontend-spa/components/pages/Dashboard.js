@@ -409,7 +409,7 @@ export default {
             <select
               :value="selectedKategoriId"
               @change="changeKategoriFilter"
-              class="px-2 py-1.5 text-xs font-semibold rounded-xl bg-gray-50 border border-gray-800/30 text-gray-700 focus:outline-none transition-all cursor-pointer hover:bg-blue-50/60 hover:text-blue-600"
+              class="h-9 px-2 py-0 text-xs font-semibold rounded-xl bg-gray-50 border border-gray-800/30 text-gray-700 focus:outline-none transition-all cursor-pointer hover:bg-blue-50/60 hover:text-blue-600"
               :class="isMobile ? 'flex-1' : 'max-w-[200px]'"
             >
               <option value="">Semua Kategori</option>
@@ -417,15 +417,15 @@ export default {
             </select>
 
             <!-- Period tabs -->
-            <div class="flex items-center gap-0.5 bg-gray-100 rounded-xl p-1 border border-gray-800/30">
+            <div class="flex items-center gap-0.5 bg-gray-100 rounded-xl p-1 border border-gray-800/30 h-9">
               <button
-                v-for="p in [{k:'daily',l:'H'},{k:'weekly',l:'M'},{k:'monthly',l:'B'}]"
+                v-for="p in [{k:'daily',s:'H',l:'Hari'},{k:'weekly',s:'M',l:'Minggu'},{k:'monthly',s:'B',l:'Bulan'}]"
                 :key="p.k"
-                class="px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-all border"
+                class="h-7 px-2.5 text-xs font-semibold rounded-lg transition-all border flex items-center justify-center"
                 :class="chartPeriod === p.k ? 'bg-white border-gray-800/30 text-gray-900 shadow-sm' : 'bg-transparent border-transparent text-gray-400 hover:bg-blue-50/60 hover:text-blue-600'"
                 @click="switchPeriod(p.k)"
                 :disabled="chartLoading"
-              >{{ p.l }}</button>
+              >{{ isMobile ? p.s : p.l }}</button>
             </div>
           </div>
         </div>

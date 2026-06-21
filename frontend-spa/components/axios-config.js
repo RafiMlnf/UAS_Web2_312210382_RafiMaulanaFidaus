@@ -1,7 +1,10 @@
 // axios-config.js — Axios interceptors: inject Bearer token + handle 401
-let BASE_URL = 'http://localhost/UASWeb2/backend-api/public'
+let BASE_URL = 'http://localhost/Web2-Inventory/backend-api/public'
 
-if (window.location.protocol.startsWith('http')) {
+if (window.location.hostname.includes('vercel.app')) {
+  // TODO: Ganti URL ini dengan URL backend Render Anda setelah di-deploy
+  BASE_URL = 'https://your-backend-name.onrender.com'
+} else if (window.location.protocol.startsWith('http')) {
   const origin = window.location.origin
   const pathname = window.location.pathname
   let projectPath = ''
