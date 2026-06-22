@@ -61,19 +61,23 @@ Sistem menggunakan database relational MySQL/MariaDB dengan nama database invent
 
 Berikut adalah tampilan antarmuka aplikasi Omniacomp:
 
-### 1. Halaman Login
-[gambar apa]
+### 1. Halaman Landing Page (Public)
+![Hero Landing Page](frontend-spa/assets/img/dash1.png)
+![Katalog Landing Page](frontend-spa/assets/img/dash2.png)
 
-### 2. Halaman Dashboard Admin
-[gambar apa]
+### 2. Halaman Login
+![Halaman Login](frontend-spa/assets/img/loginform.png)
 
-### 3. Halaman CRUD Part dan Modal Tambah/Edit Data
-[gambar apa]
+### 3. Halaman Dashboard Admin
+![Halaman Dashboard Admin](frontend-spa/assets/img/dashboardadmin.png)
 
-### 4. Tabel Visualisasi Data Komponen PC
-[gambar apa]
+### 4. Halaman CRUD Part dan Modal Tambah/Edit Data
+![Halaman CRUD Part dan Modal Tambah/Edit Data](frontend-spa/assets/img/formmodal.png)
 
-### 5. Uji Coba Error 401 Postman (Proteksi Token Gagal)
+### 5. Tabel Visualisasi Data Komponen PC (Transaksi Masuk)
+![Tabel Visualisasi Data Komponen PC](frontend-spa/assets/img/tabel.png)
+
+### 6. Uji Coba Error 401 Postman (Proteksi Token Gagal)
 [gambar apa]
 
 ---
