@@ -52,7 +52,8 @@ Sistem menggunakan database relational MySQL/MariaDB dengan nama database invent
 
 ### Skema Relasi Database
 
-[gambar apa]
+![Skema Relasi Database](frontend-spa/assets/img/relasidb.png)
+
 
 ---
 
