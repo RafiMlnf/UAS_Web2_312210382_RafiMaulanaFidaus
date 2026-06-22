@@ -139,7 +139,8 @@ CREATE TABLE IF NOT EXISTS transaksi_keluar (
 -- Users (password = MD5("password123") untuk demo)
 INSERT INTO users (nama, email, password, role) VALUES
   ('Administrator', 'admin@inventorypc.com', MD5('password123'), 'admin'),
-  ('Staff Gudang',  'staff@inventorypc.com', MD5('password123'), 'staff');
+  ('Staff Gudang',  'staff',                 MD5('123'),         'staff'),
+  ('Admin',         'admin',                 MD5('123'),         'admin');
 
 -- Kategori Part
 INSERT INTO kategori_part (nama_kategori, deskripsi) VALUES

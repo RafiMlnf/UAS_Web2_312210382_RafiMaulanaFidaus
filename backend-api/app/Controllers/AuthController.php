@@ -17,8 +17,8 @@ class AuthController extends ResourceController
     public function login()
     {
         $rules = [
-            'email'    => 'required|valid_email',
-            'password' => 'required|min_length[6]',
+            'email'    => 'required',
+            'password' => 'required',
         ];
 
         if (!$this->validate($rules)) {

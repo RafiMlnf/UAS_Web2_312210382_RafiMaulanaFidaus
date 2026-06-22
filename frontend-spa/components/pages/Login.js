@@ -15,7 +15,7 @@ export default {
     async handleLogin() {
       this.error = ''
       if (!this.form.email || !this.form.password) {
-        this.error = 'Email dan password wajib diisi.'
+        this.error = 'Username/Email dan password wajib diisi.'
         return
       }
       this.loading = true
@@ -33,10 +33,6 @@ export default {
       } finally {
         this.loading = false
       }
-    },
-    fillDemo() {
-      this.form.email    = 'admin@inventorypc.com'
-      this.form.password = 'password123'
     }
   },
   template: `
@@ -96,16 +92,16 @@ export default {
           <form @submit.prevent="handleLogin">
 
             <div class="form-group">
-              <label class="form-label">Alamat Email</label>
+              <label class="form-label">Username atau Email</label>
               <div class="input-group">
                 <span class="input-group-icon" v-html="icons.user"></span>
                 <input
                   id="input-email"
-                  type="email"
+                  type="text"
                   class="form-control"
                   v-model="form.email"
-                  placeholder="admin@inventorypc.com"
-                  autocomplete="email"
+                  placeholder="Masukkan username atau email"
+                  autocomplete="username"
                   :class="{ 'is-invalid': error && !form.email }"
                 />
               </div>
@@ -152,26 +148,6 @@ export default {
 
           </form>
 
-          <!-- Demo credentials -->
-          <div class="login-demo">
-            <div class="login-demo-header">
-              <span v-html="icons.check" style="color:var(--success);"></span>
-              <span>Akun Demo Tersedia</span>
-            </div>
-            <div class="login-demo-creds">
-              <div>
-                <span class="login-demo-key">Email</span>
-                <span class="login-demo-val">admin@inventorypc.com</span>
-              </div>
-              <div style="margin-top:4px;">
-                <span class="login-demo-key">Password</span>
-                <span class="login-demo-val">password123</span>
-              </div>
-            </div>
-            <button type="button" class="login-demo-fill" @click="fillDemo">
-              Isi otomatis
-            </button>
-          </div>
 
         </div>
       </div>

@@ -20,8 +20,8 @@ class UserModel extends Model
 
     protected $validationRules = [
         'nama'     => 'required|min_length[3]|max_length[100]',
-        'email'    => 'required|valid_email|max_length[150]',
-        'password' => 'required|min_length[6]',
+        'email'    => 'required|max_length[150]',
+        'password' => 'required',
         'role'     => 'required|in_list[admin,staff]',
     ];
 
