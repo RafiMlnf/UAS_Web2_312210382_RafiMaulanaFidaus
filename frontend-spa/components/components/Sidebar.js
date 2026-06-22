@@ -100,7 +100,7 @@ export default {
           const cy = row * cellH + cellH / 2
 
           // Opacity also fades with distance
-          const alpha = fade * 0.07 * sizeNoise
+          const alpha = fade * 0.035 * sizeNoise
 
           ctx.beginPath()
           ctx.arc(cx, cy, r, 0, Math.PI * 2)
