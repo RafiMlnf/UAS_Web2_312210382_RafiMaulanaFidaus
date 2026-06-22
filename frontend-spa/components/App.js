@@ -23,7 +23,7 @@ export default {
         '/transaksi-masuk': 'Stok Masuk',
         '/transaksi-keluar': 'Stok Keluar',
       }
-      return map[this.$route.path] || 'E-Inventory PC'
+      return map[this.$route.path] || 'Omniacomp'
     }
   },
   watch: {

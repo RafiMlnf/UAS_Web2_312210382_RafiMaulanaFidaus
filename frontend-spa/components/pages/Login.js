@@ -21,7 +21,7 @@ export default {
       this.loading = true
       try {
         const res = await axios.post('/api/auth/login', {
-          email:    this.form.email,
+          email: this.form.email,
           password: this.form.password,
         })
         const { token, user } = res.data
@@ -41,8 +41,8 @@ export default {
       <!-- Left panel: branding -->
       <div class="login-brand">
         <div class="login-brand-inner">
-          <div class="login-brand-badge">
-            <span v-html="icons.logo"></span>
+          <div class="login-brand-badge" style="background: white; padding: 4px;">
+            <img src="./assets/img/logoweb.png" alt="Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 10px;" />
           </div>
           <h2>Kelola inventaris<br>komponen PC dengan<br><span>mudah dan efisien.</span></h2>
           <p>Pantau stok, kelola transaksi, dan kendalikan seluruh gudang dari satu dasbor terpusat.</p>
@@ -72,14 +72,14 @@ export default {
 
           <!-- Logo mobile -->
           <div class="login-card-logo">
-            <div class="login-logo-icon" v-html="icons.logo"></div>
-            <span>E-Inventory PC</span>
+            <img src="./assets/img/logoweb.png" alt="Logo" class="login-logo-icon" style="background: white; padding: 2px; object-fit: contain;" />
+            <span>Omniacomp</span>
           </div>
 
           <!-- Heading -->
           <div class="login-card-heading">
-            <h1>Selamat Datang Kembali</h1>
-            <p>Masukkan kredensial untuk mengakses sistem inventaris</p>
+            <h1>Selamat Datang</h1>
+            <p>Masukkan akun anda untuk login</p>
           </div>
 
           <!-- Alert error -->
@@ -92,7 +92,7 @@ export default {
           <form @submit.prevent="handleLogin">
 
             <div class="form-group">
-              <label class="form-label">Username atau Email</label>
+              <label class="form-label">Username</label>
               <div class="input-group">
                 <span class="input-group-icon" v-html="icons.user"></span>
                 <input

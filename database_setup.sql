@@ -1,6 +1,6 @@
 -- ============================================================
 -- DATABASE SETUP: inventory_part_pc_db
--- Project: UAS Pemrograman Web 2 - E-Inventory Part PC
+-- Project: UAS Pemrograman Web 2 - Omniacomp
 -- ============================================================
 
 -- Hapus database lama jika ada agar bersih saat di-import ulang

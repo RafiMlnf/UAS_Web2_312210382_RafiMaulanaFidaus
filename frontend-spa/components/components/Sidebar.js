@@ -10,6 +10,20 @@ export default {
   data() {
     return { icons }
   },
+  watch: {
+    user: {
+      immediate: true,
+      handler(newVal) {
+        this.$nextTick(() => {
+          if (newVal) {
+            this._startGreetingAnimation()
+          } else {
+            this._stopGreetingAnimation()
+          }
+        })
+      }
+    }
+  },
   computed: {
     navItems() {
       return [
@@ -37,6 +51,7 @@ export default {
     this._drawHalftone()
   },
   beforeUnmount() {
+    this._stopGreetingAnimation()
     if (this._htCanvas) {
       this._htCanvas.remove()
       this._htCanvas = null
@@ -108,19 +123,110 @@ export default {
           ctx.fill()
         }
       }
+    },
+    _startGreetingAnimation() {
+      this._stopGreetingAnimation()
+      const canvas = this.$refs.greetingCanvas
+      if (!canvas) return
+      
+      const ctx = canvas.getContext('2d')
+      
+      const resize = () => {
+        const parent = canvas.parentNode
+        if (!parent) return
+        const W = parent.clientWidth || 212
+        const H = parent.clientHeight || 64
+        canvas.width = W
+        canvas.height = H
+      }
+      resize()
+      
+      window.addEventListener('resize', resize)
+      
+      let animationFrameId
+      let t = 0
+      let shimmerX = -260
+      
+      const draw = () => {
+        t += 0.01 // Faster, smooth flowing speed
+        const W = canvas.width
+        const H = canvas.height
+        ctx.clearRect(0, 0, W, H)
+        
+        const bgGrad = ctx.createLinearGradient(0, 0, W, H)
+        bgGrad.addColorStop(0, '#1A70F5')
+        bgGrad.addColorStop(1, '#0b4ebd')
+        ctx.fillStyle = bgGrad
+        ctx.fillRect(0, 0, W, H)
+        
+        const numLines = 6
+        for (let i = 0; i < numLines; i++) {
+          ctx.beginPath()
+          
+          const offset = H * 0.15 + i * (H * 0.13)
+          const amp = 6 + i * 1.5 
+          const freq = 0.008 + i * 0.0012 
+          const phase = t + (i * 0.45) 
+          
+          ctx.moveTo(0, offset)
+          for (let x = 0; x <= W; x += 2) {
+            const y = offset + 
+                      Math.sin(x * freq - phase) * amp + 
+                      Math.sin(x * 0.004 - phase) * (amp * 0.3)
+            ctx.lineTo(x, y)
+          }
+          
+          ctx.strokeStyle = `rgba(255, 255, 255, ${0.16 - (i * 0.02)})`
+          ctx.lineWidth = 1.0 + i * 0.3
+          ctx.stroke()
+        }
+        
+        // ── Purple Shimmer / Glass reflection effect ──
+        shimmerX += 1.8 // speed of shimmer
+        if (shimmerX > W * 1.5) {
+          shimmerX = -260
+        }
+        ctx.save()
+        ctx.globalCompositeOperation = 'lighter'
+        const shimGrad = ctx.createLinearGradient(shimmerX, 0, shimmerX + 240, H) // Wider span (240px)
+        shimGrad.addColorStop(0, 'rgba(147, 51, 234, 0)')       // transparent purple
+        shimGrad.addColorStop(0.35, 'rgba(168, 85, 247, 0.05)')  // very subtle purple glow
+        shimGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.09)')   // dim white glass shine
+        shimGrad.addColorStop(0.65, 'rgba(168, 85, 247, 0.05)')  // very subtle purple glow
+        shimGrad.addColorStop(1, 'rgba(147, 51, 234, 0)')       // transparent purple
+        
+        ctx.fillStyle = shimGrad
+        ctx.fillRect(0, 0, W, H)
+        ctx.restore()
+        
+        animationFrameId = requestAnimationFrame(draw)
+      }
+      
+      draw()
+      
+      this._greetingCancel = () => {
+        cancelAnimationFrame(animationFrameId)
+        window.removeEventListener('resize', resize)
+      }
+    },
+    _stopGreetingAnimation() {
+      if (this._greetingCancel) {
+        this._greetingCancel()
+        this._greetingCancel = null
+      }
     }
   },
   template: `
     <aside class="sidebar" :class="{ open: open }">
       <!-- Logo -->
       <div class="sidebar-logo" style="position:relative;z-index:1;">
-        <div class="sidebar-logo-icon" v-html="icons.logo"></div>
-        <span class="sidebar-logo-text">E-Inventory PC</span>
+        <span class="sidebar-logo-text" style="font-weight: 400;">omniacomp inventory</span>
       </div>
 
       <!-- User Greeting -->
-      <div class="sidebar-greeting" v-if="user" style="position:relative;z-index:1;">
-        <div class="sidebar-greeting-name">Selamat Datang,<br><strong>{{ user.nama }}</strong></div>
+      <div class="sidebar-greeting" v-if="user" style="position:relative;z-index:1;overflow:hidden;">
+        <canvas ref="greetingCanvas" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;"></canvas>
+        <div class="sidebar-greeting-name" style="position:relative;z-index:1;">Selamat Datang,<br><strong>{{ user.nama }}</strong></div>
       </div>
 
       <!-- Navigation -->

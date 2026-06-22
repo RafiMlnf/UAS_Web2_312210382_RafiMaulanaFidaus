@@ -124,27 +124,24 @@ export default {
       <div class="glow-sphere" style="top: -10%; left: 10%; width: 450px; height: 450px; background: radial-gradient(circle, rgba(26,112,245,0.08) 0%, rgba(26,112,245,0) 70%);"></div>
       <div class="glow-sphere" style="top: 40%; right: -5%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(99,102,241,0.06) 0%, rgba(99,102,241,0) 70%);"></div>
 
-      <!-- Header / Navbar -->
-      <header class="public-header glass-card flex items-center justify-between px-6 py-4 mb-8">
-        <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white" v-html="icons.logo"></div>
-          <span class="text-base font-bold text-gray-900 tracking-tight">E-Inventory PC</span>
-        </div>
-        <router-link v-if="isLoggedIn" to="/dashboard" class="btn btn-sm flex items-center gap-1.5 shadow-sm bg-white text-gray-900 border border-gray-800/30 hover:bg-blue-50/60 hover:text-blue-600 hover:border-blue-200 transition-all">
-          <span>Ke Dashboard</span>
-          <span v-html="icons.chevronRight"></span>
-        </router-link>
-        <router-link v-else to="/login" class="btn btn-primary btn-sm flex items-center gap-1.5 shadow-sm border border-gray-800/30">
-          <span>Masuk Ke Sistem</span>
-          <span v-html="icons.chevronRight"></span>
-        </router-link>
-      </header>
-
       <!-- Hero Section -->
-      <div class="hero-section text-left max-w-3xl mb-12 animate-swipe-up-fade">
-        <h1 class="text-3xl md:text-5xl font-extrabold text-gray-950 tracking-tight leading-tight mb-5">
-          Portal Manajemen Inventaris & Distribusi Komponen PC
-        </h1>
+      <div class="hero-section text-left w-full mb-12 animate-swipe-up-fade">
+        <img src="./assets/img/logoweb.png" alt="Logo" style="height: 120px; width: auto; object-fit: contain; margin-bottom: 24px; display: block;" />
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-5">
+          <h1 class="text-3xl md:text-5xl font-extrabold text-gray-950 tracking-tight leading-tight flex-1">
+            Portal Manajemen Inventaris & Distribusi Komponen PC
+          </h1>
+          <div class="flex-shrink-0">
+            <router-link v-if="isLoggedIn" to="/dashboard" class="btn btn-sm flex items-center gap-1.5 shadow-sm bg-white text-gray-900 border border-gray-800/30 hover:bg-blue-50/60 hover:text-blue-600 hover:border-blue-200 transition-all">
+              <span>Ke Dashboard</span>
+              <span v-html="icons.chevronRight"></span>
+            </router-link>
+            <router-link v-else to="/login" class="btn btn-primary btn-sm flex items-center gap-1.5 shadow-sm border border-gray-800/30">
+              <span>Masuk Ke Sistem</span>
+              <span v-html="icons.chevronRight"></span>
+            </router-link>
+          </div>
+        </div>
         <p class="text-base text-gray-600 leading-relaxed max-w-2xl">
           Sistem kontrol logistik dan ketersediaan komponen PC secara real-time. Pantau ketersediaan stok processor, VGA, RAM, storage, dan peripheral lainnya secara akurat untuk kelancaran rantai pasok Anda.
         </p>

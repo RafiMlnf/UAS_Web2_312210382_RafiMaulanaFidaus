@@ -342,6 +342,7 @@ export default {
       <!-- ── Page Header ─────────────────────── -->
       <div class="page-header mb-6">
         <div class="page-header-title">
+          <img src="./assets/img/logoweb.png" alt="Logo" style="height: 90px; width: auto; object-fit: contain; margin-bottom: 16px; display: block;" />
           <h1>Dashboard</h1>
           <p v-if="user">Selamat datang kembali, <strong>{{ user.nama }}</strong> — berikut ringkasan inventaris hari ini.</p>
         </div>
