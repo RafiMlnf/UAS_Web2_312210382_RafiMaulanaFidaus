@@ -1,5 +1,3 @@
-# Omniacomp Inventory
-
 <p align="center">
   <img src="frontend-spa/assets/img/logoweb.png" alt="Omniacomp Logo" width="200" /><br>
   <a href="https://exenpcinventory.freedev.app/#/home">Link Demo Aplikasi</a> | <a href="[Tautan Video]">Link Video Presentasi</a>
