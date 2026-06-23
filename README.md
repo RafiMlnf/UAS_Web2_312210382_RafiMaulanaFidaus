@@ -5,7 +5,7 @@
 ---
       
 Link Demo      : https://omniacomprafimf.freedev.app/    
-Link Youtube   :
+Link Youtube   : https://youtu.be/FSXjpvFUBds  
   
 ## Deskripsi Proyek
 
