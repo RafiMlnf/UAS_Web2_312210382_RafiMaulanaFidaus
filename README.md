@@ -1,8 +1,10 @@
 <p align="center">
   <img src="frontend-spa/assets/img/logoweb.png" alt="Omniacomp Logo" width="400" /><br>
 </p>
-
-Link Demo      : https://exenpcinventory.freedev.app/
+     
+---
+      
+Link Demo      : https://exenpcinventory.freedev.app/    
 Link Youtube   :
   
 ## Deskripsi Proyek
