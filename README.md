@@ -1,8 +1,10 @@
 <p align="center">
   <img src="frontend-spa/assets/img/logoweb.png" alt="Omniacomp Logo" width="400" /><br>
-  <a href="https://exenpcinventory.freedev.app/#/home">Link Demo Aplikasi</a> | <a href="[Tautan Video]">Link Video Presentasi</a>
 </p>
 
+Link Demo      : https://exenpcinventory.freedev.app/
+Link Youtube   :
+  
 ## Deskripsi Proyek
 
 Omniacomp Inventory adalah sistem manajemen inventaris gudang dan toko komponen PC berbasis web. Sistem ini dirancang untuk mengelola data komponen PC (seperti prosesor, RAM, storage, motherboard, pendingin, dan casing), brand, supplier, serta transaksi stok masuk dan keluar secara real-time.
