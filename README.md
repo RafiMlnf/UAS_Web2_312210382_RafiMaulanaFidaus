@@ -107,12 +107,12 @@ Ikuti langkah-langkah di bawah ini untuk menjalankan proyek di komputer lokal An
 1. Masuk ke direktori backend-api:
    cd backend-api
 2. Gandakan file env menjadi .env jika belum ada, lalu sesuaikan konfigurasi database Anda:
-   database.default.hostname = localhost
-   database.default.database = inventory_part_pc_db
-   database.default.username = root
-   database.default.password = 
-   database.default.DBDriver = MySQLi
-   database.default.port = 3306
+   database.default.hostname = localhost  
+   database.default.database = inventory_part_pc_db  
+   database.default.username = root  
+   database.default.password =   
+   database.default.DBDriver = MySQLi  
+   database.default.port = 3306  
 3. Jalankan server local CodeIgniter 4 menggunakan Spark CLI:
    php spark serve
 4. Backend API secara default akan berjalan di URL: http://localhost:8080/
